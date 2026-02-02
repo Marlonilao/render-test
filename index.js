@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
-
+const morgan = require("morgan");
+app.use(express.static("dist"));
+app.use(express.json());
+app.use(morgan("tiny"));
 let notes = [
   {
     id: "1",
@@ -45,8 +48,6 @@ app.delete("/api/notes/:id", (request, response) => {
   response.status(204).end();
 });
 
-app.use(express.json());
-
 const generateId = () => {
   const maxId =
     notes.length > 0
@@ -69,6 +70,14 @@ app.post("/api/notes", (request, response) => {
   };
   notes = notes.concat(note);
   response.json(note);
+});
+
+app.put("/api/notes/:id", (request, response) => {
+  const id = request.params.id;
+  const newNote = request.body;
+
+  notes = notes.map((note) => (note.id === id ? newNote : note));
+  response.json(newNote);
 });
 
 const PORT = process.env.PORT || 3001;
